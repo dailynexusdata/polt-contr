@@ -1,15 +1,14 @@
 /**
- * sort polt-contr data by contribution amount
+ * sort polt-contr data by year of contribution
  *
  *
  * @author Julia
  *
  */
 import { select } from 'd3-selection';
-import { scaleLinear, scaleBand, scaleOrdinal } from 'd3-scale';
+import { scaleLinear } from 'd3-scale';
 import { nest } from 'd3-collection';
-import { max, bin, min } from 'd3-array';
-import { schemeTableau10 } from 'd3-scale-chromatic';
+import { max, min } from 'd3-array';
 import { axisBottom, axisLeft } from 'd3-axis';
 
 /**
@@ -19,18 +18,20 @@ import { axisBottom, axisLeft } from 'd3-axis';
  *
  * @since Date
  */
-const makeContributions = (data) => {
+const makeYears = (data) => {
+  console.log('This is the start of the makeYears function');
   /*
     Container Setup:
   */
 
   // The class is necessary to apply styling
-  const container = select('#pol-contr-donations').attr('class', 'pol-contr');
+  // put div id from index.ejs
+  const container = select('#pol-contr-years').attr('class', 'pol-contr');
 
   // When the resize event is called, reset the plot
   container.selectAll('*').remove();
 
-  container.append('h1').text('Political Contribution Amounts');
+  container.append('h1').text('Number of Political Contributions by Year');
 
   const size = {
     height: 400,
@@ -54,89 +55,81 @@ const makeContributions = (data) => {
   /*
     Create Scales:
   */
-  const contributions = data.map((d) => parseInt(d.contribution_receipt_amount));
-  console.log('contributions', contributions);
-  console.log('max', max(contributions)); // 5600
+  const years = data.map((d) => parseInt(d.report_year));
+  // console.log('years', years);
+  const maxYear = max(years); // 2021
+  const minYear = min(years); // 2015
 
-  const maxContrib = 100;
-  const numBins = maxContrib / 10;
-  console.log('numBins', numBins); // 56
-  const binMaker = bin()
-    .domain([0, maxContrib]) // ignore negative values, only look at 0-100
-    .thresholds(numBins);
+  // need to nest, then set maxYearSize to size of year with most donations
+  const nestedYears = nest()
+    .key((d) => d.report_year)
+    .entries(data);
+  // console.log('nestedyears', nestedYears);
+  // console.log('nestedyears[0]', nestedYears[0]);
+  // console.log('nestedyears[0].values.length', nestedYears[0].values.length);
 
-  const binnedContributions = binMaker(contributions); // array of arrays of values in bins
-  console.log('binnedContributions', binnedContributions);
-  console.log('binnedContributions[0]', binnedContributions[0]); // check that all values between 0 and 100
-  console.log('binnedContributions[1]', binnedContributions[1]);
-  console.log('binnedContributions.length', binnedContributions.length); // 56
-  console.log('binnedContributions[0].length', binnedContributions[0].length); // 36282
-
-  const maxBinSize = max(binnedContributions, (d) => d.length);
-  console.log('maxBinSize', maxBinSize); // 36282
+  const gap = 0; // between bars
+  const barWidth = (size.width - margin.left) / nestedYears.length - gap;
+  // console.log('barWidth', barWidth);
 
   const x = scaleLinear()
-    .domain([0, maxContrib])
+    .domain([minYear, maxYear + 1]) // 2015-2021
     .range([margin.left, size.width - margin.right]);
 
-  console.log('margin.left', margin.left); // 20
-  console.log('size.width - margin.right', size.width - margin.right); // 590
+  // console.log('margin.left', margin.left); // 50
+  // console.log('size.width - margin.right', size.width - margin.right); // 590
 
-  console.log('x(min(binnedContributions[0]))', x(min(binnedContributions[0]))); // 20
-  console.log('min(binnedContributions[1])', min(binnedContributions[1])); // 100, as expected
-  console.log('x(min(binnedContributions[1]))', x(min(binnedContributions[1]))); // why is this so big, 1037.85...
+  // check that x gives reasonable values
+  // console.log('nestedYears[0].key', nestedYears[0].key);
+  // console.log('x(nestedYears[0].key)', x(nestedYears[0].key));
+
+  const maxYearSize = max(nestedYears, (d) => d.values.length);
+  // console.log('maxYearSize', maxYearSize);
+
+  const numContribsByYear = nestedYears.map(({ key, values }) => ({
+    key,
+    numContribs: values.length, // need length of array of data in each year
+  }));
+  // console.log('numContribsByYear', numContribsByYear);
 
   const y = scaleLinear()
-    .domain([0, maxBinSize])
+    .domain([0, maxYearSize])
     .range([size.height - margin.bottom, margin.top]);
 
-  // check that y gives reasonable values
-  console.log(
-    'y(binnedContributions[0].length)',
-    y(binnedContributions[0].length),
-  ); // 380
-  console.log(
-    'y(binnedContributions[1].length)',
-    y(binnedContributions[1].length),
-  ); // 31.327...
+  // check values of y function
+  // console.log(
+  //   'y(nestedYears[0].values.length)',
+  //   y(nestedYears[0].values.length),
+  // );
 
   /*
     Start Plot:
   */
-
-  const gap = 10; // between bars
-  const barWidth = (size.width - margin.left) / numBins - gap;
   svg
     .selectAll('bars')
-    .data(binnedContributions)
+    .data(nestedYears)
     .enter()
     .append('rect')
-    .attr('x', (d) => x(min(d)))
-    .attr('y', (d) => y(d.length)) // if just d => y(0) then bars dropping from top of chart
+    .attr('x', (d) => x(d.key))
+    .attr('y', (d) => y(d.values.length)) // if just d => y(0) then bars dropping from top of chart
     .attr('width', barWidth)
-    .attr('height', (d) => y(0) - y(d.length))
-    .attr('fill', '#009fad');
+    .attr('height', (d) => y(0) - y(d.values.length))
+    .attr('fill', '#2d44d2');
 
   // x-axis
+  // reference: https://www.d3indepth.com/axes/
   svg
     .append('g')
     .attr('transform', `translate(0, ${size.height - margin.bottom})`)
-    .attr('color', '#adadad')
-    .call(axisBottom(x).ticks(10));
+    .attr('color', '#1a365d')
+    .call(axisBottom(x).ticks(maxYear - minYear + 1, 'd')); // "d" rounds year to integer
 
   // y-axis
   svg
     .append('g')
     .attr('transform', `translate(${margin.left}, 0)`)
-    .attr('color', '#adadad')
-    .call(axisLeft(y).ticks(5));
-
-  /* to-do:
-  d3 nest function group things together
-  how much money to each committee
-  track over the years
-  sort by name
-  */
+    .attr('color', '#1a365d')
+    .call(axisLeft(y).ticks(10));
 };
 
-export default makeContributions;
+export default makeYears;
