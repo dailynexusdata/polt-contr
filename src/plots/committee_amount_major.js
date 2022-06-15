@@ -1,6 +1,6 @@
 /**
- * plot polt-contr data by committee  vs. # of contributors for top 2
- *
+ * plot polt-contr data by committee  vs. amount donated for top 2
+ * IN PROGRESS
  *
  * @author Julia
  *
@@ -56,25 +56,20 @@ const makeCommMajor = (data) => {
     .attr('height', size.height)
     .attr('width', size.width);
 
-  container.append('a').text('Source: __________').attr('href', '');
-
   /*
     Create Scales:
   */
 
-  // const committees = [
-  //   { key: 'C00401224', name: 'ACTBLUE' },
-  //   { key: 'C00630012', name: 'IT STARTS TODAY' },
-  // ];
-  const committees = { C00401224: 'ACTBLUE', C00630012: 'IT STARTS TODAY' };
-  // console.log(committees);
-
+  const committees = [
+    { name: 'ACTBLUE', id: 'C00401224' },
+    { name: 'IT STARTS TODAY', id: 'C00630012' },
+  ];
   const committee_ids = ['C00401224', 'C00630012'];
   // filter so only contains donations to top 2; see use of filter() in cities_bins
   const top_5 = data.filter((d) => committee_ids.includes(d.committee_id)); // oops confusing name, should just be 2
-  // console.log('top_5', top_5);
+  console.log('top_5', top_5);
   const nestedComm = nest()
-    .key((d) => d.committee_id) // sorting by committee_name doesn't work somehow
+    .key((d) => d.committee_id)
     .entries(top_5);
   // console.log('nestedComm', nestedComm);
 
@@ -82,26 +77,17 @@ const makeCommMajor = (data) => {
     key,
     numContribs: values.length, // need length of array of data in each year
   }));
-  // console.log('numContribsByCommittee', numContribsByCommittee); // 0: {key: 'C00401224', numContribs: 23107}; 1: {key: 'C00630012', numContribs: 10369}
+  console.log('numContribsByCommittee', numContribsByCommittee);
 
   const maxCommSize = max(nestedComm, (d) => d.values.length);
-  // console.log('maxCommSize', maxCommSize); // 23107 from C00401224 which is ActBlue
+  console.log('maxCommSize', maxCommSize); // 23107 from C00401224 which is ActBlue
 
   const totalContribs = data.length;
-  // console.log('totalContribs', totalContribs);
-  // console.log(
-  //   'percentages:',
-  //   (numContribsByCommittee[0].numContribs / totalContribs) * 100,
-  //   (numContribsByCommittee[1].numContribs / totalContribs) * 100,
-  // );
+  console.log('totalContribs', totalContribs);
+
   const y = scaleLinear()
     .domain([0, maxCommSize])
     .range([size.height - margin.bottom, margin.top]);
-
-  // console.log(
-  //   y(numContribsByCommittee[0].numContribs),
-  //   y(numContribsByCommittee[1].numContribs),
-  // );
 
   const x = scaleBand()
     .domain(committee_ids) // !figure out how to change to actual committee names
@@ -130,7 +116,7 @@ const makeCommMajor = (data) => {
     .attr('transform', `translate(0, ${size.height - margin.bottom})`)
     .attr('color', '#1a365d')
     .call(axisBottom(x).ticks(2));
-  // .call(axisBottom(x).tickFormat((d) => committees[d]);
+  // .call(axisBottom(x).tickValues([100, 200]));
   // https://dzone.com/articles/d3-js-axes-ticks-and-gridlines
 
   // y-axis
@@ -142,4 +128,4 @@ const makeCommMajor = (data) => {
     .call(axisLeft(y).tickFormat((d) => format('.0%')(d / totalContribs))); // need import format from d3-format
 };
 
-export default makeCommMajor;
+// export default makeCommMajor;

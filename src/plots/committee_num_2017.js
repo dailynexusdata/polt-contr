@@ -1,5 +1,5 @@
 /**
- * plot polt-contr data by committee vs. % of contributors, except for top 2
+ * plot pol-contr data by percentage to each committee in 2017
  *
  *
  * @author Julia
@@ -7,27 +7,20 @@
  */
 import { select } from 'd3-selection';
 import { scaleLinear, scaleBand } from 'd3-scale';
+import { nest } from 'd3-collection';
 import { max } from 'd3-array';
 import { axisBottom, axisLeft } from 'd3-axis';
-import { nest } from 'd3-collection';
 import { format } from 'd3-format';
 
-/**
- * @param {*} data - What is the data?
- *
- * @author Name
- *
- * @since Date
- */
-const makeCommMinor = (data) => {
-  console.log('This is the start of the makeCommMinor function');
+const makeCommNum2017 = (data) => {
+  console.log('This is the start of the makeCommNum2017 function');
   /*
-    Container Setup:
-  */
+      Container Setup:
+    */
 
   // The class is necessary to apply styling
   // put div id from index.ejs
-  const container = select('#pol-contr-committee-minor').attr(
+  const container = select('#pol-contr-committee-num-2017').attr(
     'class',
     'pol-contr',
   );
@@ -37,9 +30,7 @@ const makeCommMinor = (data) => {
 
   container
     .append('h1')
-    .text(
-      'Percentage of Political Contributions by Committee (other than top 2)',
-    );
+    .text('Percentage of Political Contributions by Committee in 2017');
 
   const size = {
     height: 400,
@@ -50,7 +41,7 @@ const makeCommMinor = (data) => {
     top: 10,
     right: 10,
     bottom: 20,
-    left: 100,
+    left: 50,
   };
 
   const svg = container
@@ -58,51 +49,59 @@ const makeCommMinor = (data) => {
     .attr('height', size.height)
     .attr('width', size.width);
 
-  container.append('a').text('Source: __________').attr('href', '');
-
   /*
     Create Scales:
   */
+  const year2017 = data.filter((d) => parseInt(d.report_year) === 2017);
+  // console.log('year2017', year2017);
 
-  const majorCommittees = ['C00401224', 'C00630012']; // ActBlue, It Starts Today
-  const committees = data.map((d) => d.committee_id);
-  // console.log('committees', committees);
-  const totalContribs = committees.length;
-  // console.log('totalContribs', totalContribs);
-  const minorCommittees = [];
+  const totalContribs = year2017.length;
+  // console.log('totalContribs', totalContribs); // 3742
+
+  const committees = year2017.map((d) => d.committee_id);
+
+  const uniqueCommittees = [];
   committees.forEach((d) => {
-    if (!minorCommittees.includes(d) && !majorCommittees.includes(d)) {
-      minorCommittees.push(d);
+    if (!uniqueCommittees.includes(d)) {
+      uniqueCommittees.push(d);
     }
   });
-  // console.log('minorCommittees', minorCommittees); // 182 so far
-  const not_top_5 = data.filter(
-    (d) => !majorCommittees.includes(d.committee_id),
-  );
-  // console.log('not_top_5', not_top_5);
+  // console.log('uniqueCommittees', uniqueCommittees); // 184
 
   const nestedComm = nest()
     .key((d) => d.committee_id)
-    .entries(not_top_5);
+    .entries(year2017);
   // console.log('nestedComm', nestedComm);
 
   const numContribsByCommittee = nestedComm.map(({ key, values }) => ({
     key,
     numContribs: values.length, // need length of array of data in each year
   }));
-  // console.log('numContribsByCommittee', numContribsByCommittee);
+  // console.log('numContribsByCommittee', numContribsByCommittee); // 38
+
+  // check for ActBlue & It Starts Today
+  // for (let i = 0; i < numContribsByCommittee.length; i++) {
+  //   if (numContribsByCommittee[i].key === 'C00630012') {
+  //     const itStartsToday = numContribsByCommittee[i];
+  //     console.log('itStartsToday', itStartsToday); // 5148
+  //   }
+  //   if (numContribsByCommittee[i].key === 'C00401224') {
+  //     const actBlue = numContribsByCommittee[i];
+  //     console.log('actBlue', actBlue); // 2018
+  //   }
+  //   // else {
+  //   //   console.log('no It Starts Today');
+  //   // }
+  // }
 
   const maxCommSize = max(nestedComm, (d) => d.values.length);
-  // console.log('maxCommSize', maxCommSize); // 23107 from C00401224 which is ActBlue
-  // C00630012 has 10369, 46th in numComtribsByCommittee, It Starts Today (https://www.fec.gov/data/committee/C00630012/)
-  // from Stack article: also check out BlackPAC, Biden stuff, DNC, DCCC, Jon Ossoff (Georgia)?, DSCC
 
   const y = scaleLinear()
     .domain([0, maxCommSize])
     .range([size.height - margin.bottom, margin.top]);
 
   const x = scaleBand()
-    .domain(minorCommittees) // figure out how to change to actual committee names?
+    .domain(uniqueCommittees) // figure out how to change to actual committee names?
     .range([margin.left, size.width - margin.right]);
 
   /*
@@ -120,22 +119,20 @@ const makeCommMinor = (data) => {
     .attr('width', (size.height - margin.left) / nestedComm.length)
     .attr('fill', '#832232'); // "antique ruby"
 
-  // x-axis
-  // reference: https://www.d3indepth.com/axes/
   svg
     .append('g')
     .attr('transform', `translate(0, ${size.height - margin.bottom})`)
     .attr('color', '#1a365d')
     .call(axisBottom(x).ticks());
 
-  // y-axis
   svg
     .append('g')
     .attr('transform', `translate(${margin.left}, 0)`)
     .attr('color', '#1a365d')
     .call(axisLeft(y).ticks())
-    .call(axisLeft(y).tickFormat((d) => format('.2%')(d / totalContribs))); // https://github.com/d3/d3-format
-  // .call(axisLeft(y).tickFormat((d) => `${(d / totalContribs) * 100}%`)) // gives tons of decimal places
+    .call(axisLeft(y).tickFormat((d) => format('.2%')(d / totalContribs)));
 };
 
-export default makeCommMinor;
+export default makeCommNum2017;
+// conclusions: 1: {key: 'C00401224', numContribs: 1121} is ActBlue with ~70%
+// 0: {key: 'C00401224', numContribs: 10342} is ActBlue with ~80% of contributions; It Starts Today only had 16 contributions

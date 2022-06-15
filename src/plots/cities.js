@@ -129,6 +129,7 @@ const makeCities = (data) => {
       return y(d.contributor_city);
     })
     .attr('r', 5)
+    .attr('fill-opacity', 0.1) // from https://stackoverflow.com/questions/15988455/how-can-i-change-the-radius-and-opacity-of-a-circle-in-d3
     .attr('fill', '#847577'); // "rocket metallic"
 
   /* https://d3-graph-gallery.com/graph/scatter_basic.html

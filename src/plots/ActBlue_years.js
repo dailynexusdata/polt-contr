@@ -6,7 +6,7 @@
  *
  */
 import { select } from 'd3-selection';
-import { scaleLinear, scaleBand } from 'd3-scale';
+import { scaleLinear } from 'd3-scale';
 import { nest } from 'd3-collection';
 import { max, min } from 'd3-array';
 import { axisBottom, axisLeft } from 'd3-axis';
@@ -18,20 +18,25 @@ import { axisBottom, axisLeft } from 'd3-axis';
  *
  * @since Date
  */
-const makeYears = (data) => {
-  console.log('This is the start of the makeYears function');
+const makeActBlueYears = (data) => {
+  console.log('This is the start of the makeActBlueYears function');
   /*
     Container Setup:
   */
 
   // The class is necessary to apply styling
   // put div id from index.ejs
-  const container = select('#pol-contr-years').attr('class', 'pol-contr');
+  const container = select('#pol-contr-ActBlue-years').attr(
+    'class',
+    'pol-contr',
+  );
 
   // When the resize event is called, reset the plot
   container.selectAll('*').remove();
 
-  container.append('h1').text('Number of Political Contributions by Year');
+  container
+    .append('h1')
+    .text('Number of Political Contributions to ActBlue by Year');
 
   const size = {
     height: 400,
@@ -50,37 +55,31 @@ const makeYears = (data) => {
     .attr('height', size.height)
     .attr('width', size.width);
 
-  container.append('a').text('Source: __________').attr('href', '');
-
   /*
     Create Scales:
   */
-  // const years = data.map((d) => parseInt(d.report_year));
-  // // console.log('years', years);
-  // const maxYear = max(years); // 2021
-  // const minYear = min(years); // 2015
-
-  const years = data.map((d) => d.report_year);
+  const years = data.map((d) => parseInt(d.report_year));
   // console.log('years', years);
+  const maxYear = max(years); // 2021
+  const minYear = min(years); // 2015
+
+  const filter_actBlue = data.filter((d) => d.committee_id === 'C00401224');
+  // console.log(filter_actBlue);
 
   // need to nest, then set maxYearSize to size of year with most donations
   const nestedYears = nest()
     .key((d) => d.report_year)
-    .entries(data);
+    .entries(filter_actBlue);
   // console.log('nestedyears', nestedYears);
   // console.log('nestedyears[0]', nestedYears[0]);
   // console.log('nestedyears[0].values.length', nestedYears[0].values.length);
 
-  const gap = 10; // between bars
+  const gap = 0; // between bars
   const barWidth = (size.width - margin.left) / nestedYears.length - gap;
   // console.log('barWidth', barWidth);
 
-  // const x = scaleLinear()
-  //   .domain([minYear, maxYear + 1]) // 2015-2021
-  //   .range([margin.left, size.width - margin.right]);
-
-  const x = scaleBand()
-    .domain(years) // 2015-2021
+  const x = scaleLinear()
+    .domain([minYear, maxYear + 1]) // 2015-2021
     .range([margin.left, size.width - margin.right]);
 
   // console.log('margin.left', margin.left); // 50
@@ -117,11 +116,11 @@ const makeYears = (data) => {
     .data(nestedYears)
     .enter()
     .append('rect')
-    .attr('x', (d) => x(d.key) + gap / 2)
+    .attr('x', (d) => x(d.key))
     .attr('y', (d) => y(d.values.length)) // if just d => y(0) then bars dropping from top of chart
     .attr('width', barWidth)
     .attr('height', (d) => y(0) - y(d.values.length))
-    .attr('fill', '#2d44d2');
+    .attr('fill', '#4FB286'); // mint
 
   // x-axis
   // reference: https://www.d3indepth.com/axes/
@@ -129,8 +128,7 @@ const makeYears = (data) => {
     .append('g')
     .attr('transform', `translate(0, ${size.height - margin.bottom})`)
     .attr('color', '#1a365d')
-    // .call(axisBottom(x).ticks(maxYear - minYear + 1, 'd')); // "d" rounds year to integer
-    .call(axisBottom(x).ticks());
+    .call(axisBottom(x).ticks(maxYear - minYear + 1, 'd')); // "d" rounds year to integer
 
   // y-axis
   svg
@@ -140,5 +138,4 @@ const makeYears = (data) => {
     .call(axisLeft(y).ticks(10));
 };
 
-export default makeYears;
-// to make ticks in center of bar, use scaleBand not scaleLinear
+export default makeActBlueYears;

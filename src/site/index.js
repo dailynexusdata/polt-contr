@@ -15,10 +15,20 @@ import makeCities from '../plots/cities';
 import makeCitiesBins from '../plots/cities_bins';
 import makeOccupation from '../plots/occupation';
 import makeOccMaxContrib from '../plots/occupation_max_contrib';
-// import makeOccGrouped from '../plots/occupation_grouped';
+import makeOccGrouped from '../plots/occupation_grouped';
 import makeCommNum from '../plots/committee_num';
 import makeCommMajor from '../plots/committee_num_major';
 import makeCommMinor from '../plots/committee_num_minor';
+import makeCommNum2020 from '../plots/committee_num_2020';
+import makeCommNum2021 from '../plots/committee_num_2021';
+import makeCommNum2019 from '../plots/committee_num_2019';
+import makeCommNum2018 from '../plots/committee_num_2018';
+import makeCommNum2017 from '../plots/committee_num_2017';
+import makeCommNum2016 from '../plots/committee_num_2016';
+import makeCommNum2015 from '../plots/committee_num_2015';
+import makeActBlueYears from '../plots/ActBlue_years';
+import makeItStartsTodayYears from '../plots/ItStartsToday_years';
+import makeNumCommittees from '../plots/num_of_committees';
 
 const main = async () => {
   // import data - use csv or json:
@@ -40,7 +50,17 @@ const main = async () => {
     makeCitiesBins(data);
     makeOccupation(data);
     makeOccMaxContrib(data);
-    // makeOccGrouped(data);
+    makeOccGrouped(data);
+    makeCommNum2020(data);
+    makeCommNum2021(data);
+    makeCommNum2019(data);
+    makeCommNum2018(data);
+    makeCommNum2017(data);
+    makeCommNum2016(data);
+    makeCommNum2015(data);
+    makeActBlueYears(data);
+    makeItStartsTodayYears(data);
+    makeNumCommittees(data);
   };
 
   window.addEventListener('resize', () => {

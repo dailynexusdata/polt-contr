@@ -6,7 +6,7 @@
  *
  */
 import { select } from 'd3-selection';
-import { scaleLinear } from 'd3-scale';
+import { scaleLinear, scaleBand } from 'd3-scale';
 import { max, min } from 'd3-array';
 import { axisBottom, axisLeft } from 'd3-axis';
 
@@ -49,7 +49,7 @@ const makeZips = (data) => {
     .attr('height', size.height)
     .attr('width', size.width);
 
-  container.append('a').text('Source: __________').attr('href', '');
+  // container.append('a').text('Source: __________').attr('href', '');
 
   /*
     Create Scales:
@@ -64,8 +64,13 @@ const makeZips = (data) => {
 
   // stopped here; going to need scatter plot
 
-  const x = scaleLinear()
-    .domain([minZip, maxZip]) // 2015-2021
+  // this treats zipcodes as values
+  // const x = scaleLinear()
+  //   .domain([minZip, maxZip])
+  //   .range([margin.left, size.width - margin.right]);
+
+  const x = scaleBand()
+    .domain(zipcodes)
     .range([margin.left, size.width - margin.right]);
 
   // console.log('x(zipcodes[0]', x(zipcodes[0]));
@@ -87,6 +92,7 @@ const makeZips = (data) => {
     .attr('cx', (d) => x(d.contributor_zip.slice(0, 5))) // for scatterplot needs to "cx" not just "x"
     .attr('cy', (d) => y(d.contribution_receipt_amount))
     .attr('r', 5)
+    .attr('fill-opacity', 0.1)
     .attr('fill', '#847577'); // "rocket metallic"
 
   /* https://d3-graph-gallery.com/graph/scatter_basic.html

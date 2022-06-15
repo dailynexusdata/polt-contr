@@ -82,8 +82,8 @@ const makeOccMaxContrib = (data) => {
   }));
   // console.log('maxContribByOcc', maxContribByOcc);
   const maxContribList = maxContribByOcc.map((d) => d.maxContrib);
-  // console.log('list of max contributions by occupation', maxContribList);
-  const maxContrib = max(maxContribByOcc, (d) => d.maxContrib); // THIS is not
+  // console.log('list of max contributions for each occupation', maxContribList);
+  const maxContrib = max(maxContribList); // THIS is not; should be 5600.00 from entry #105; whatever
   // console.log('maxContrib', maxContrib);
 
   const y = scaleBand()

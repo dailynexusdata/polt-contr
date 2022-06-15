@@ -50,8 +50,6 @@ const makeCommNum = (data) => {
     .attr('height', size.height)
     .attr('width', size.width);
 
-  container.append('a').text('Source: __________').attr('href', '');
-
   /*
     Create Scales:
   */

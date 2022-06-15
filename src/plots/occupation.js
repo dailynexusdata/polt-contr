@@ -113,7 +113,7 @@ const makeOccupation = (data) => {
     .attr('x', x(0))
     .attr('height', (size.height - margin.top) / nestedOccupation.length)
     .attr('width', (d) => x(d.numContribs) - x(0))
-    .attr('fill', '#5DFDCB'); // "sea green Crayola"
+    .attr('fill', '#40B576'); // greenish
 
   // x-axis
   // reference: https://www.d3indepth.com/axes/
