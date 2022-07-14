@@ -61,13 +61,13 @@ const makeNumCommittees = (data) => {
   const years = data.map((d) => d.report_year);
   // for some reason, 2016 is before 2015
   years.sort();
-  console.log('years', years); // as many entries as there are donations
+  // console.log('years', years); // as many entries as there are donations
 
   // data grouped by year of contribution
   const nestedYears = nest()
     .key((d) => d.report_year)
     .entries(data);
-  console.log('nestedyears', nestedYears);
+  // console.log('nestedyears', nestedYears);
   // console.log('nestedyears[0]', nestedYears[0]);
   // console.log('nestedyears[0].values.length', nestedYears[0].values.length);
 
@@ -99,13 +99,13 @@ const makeNumCommittees = (data) => {
     committeesByYearList.push(uniqueCommittees.length);
   }
 
-  console.log('committeesByYearList', committeesByYearList);
+  // console.log('committeesByYearList', committeesByYearList);
 
   // now need to attach to the year; wow so hacky
   for (let i = 0; i < nestedYears.length; i++) {
     nestedYears[i].values = committeesByYearList[i];
   }
-  console.log('nestedYears post-processing', nestedYears);
+  // console.log('nestedYears post-processing', nestedYears);
 
   // AUGHHH SCRAP THIS
   // const nestedYearsComm = nestedYears.map((e) => e.committee_id); // invalid, need peel back another layer
@@ -153,7 +153,7 @@ const makeNumCommittees = (data) => {
   // console.log('x(nestedYears[0].key)', x(nestedYears[0].key));
 
   const maxYearSize = max(committeesByYearList);
-  console.log('maxYearSize', maxYearSize);
+  // console.log('maxYearSize', maxYearSize);
 
   const y = scaleLinear()
     .domain([0, maxYearSize])
@@ -185,7 +185,6 @@ const makeNumCommittees = (data) => {
     .append('g')
     .attr('transform', `translate(0, ${size.height - margin.bottom})`)
     .attr('color', '#1a365d')
-    // .call(axisBottom(x).ticks(maxYear - minYear + 1, 'd')); // "d" rounds year to integer
     .call(axisBottom(x).ticks());
 
   // y-axis

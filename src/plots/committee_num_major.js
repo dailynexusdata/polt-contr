@@ -1,5 +1,5 @@
 /**
- * plot polt-contr data by committee  vs. # of contributors for top 2
+ * plot polt-contr data by committee  vs. % of contributors for top 2
  *
  *
  * @author Julia
@@ -36,19 +36,21 @@ const makeCommMajor = (data) => {
   container.selectAll('*').remove();
 
   container
-    .append('h1')
-    .text('Top Campaigns Donated to by Percentage of Political Contributions');
+    .append('h3')
+    .text(
+      'Percentage of Contributions Received by Top Two Political Organizations',
+    );
 
   const size = {
     height: 400,
-    width: Math.min(600, window.innerWidth - 40),
+    width: Math.min(500, window.innerWidth - 40),
   };
 
   const margin = {
     top: 10,
     right: 10,
-    bottom: 20,
-    left: 100,
+    bottom: 30, // space for x-axis labels
+    left: 50,
   };
 
   const svg = container
@@ -56,7 +58,7 @@ const makeCommMajor = (data) => {
     .attr('height', size.height)
     .attr('width', size.width);
 
-  container.append('a').text('Source: __________').attr('href', '');
+  // container.append('a').text('Source: __________').attr('href', '');
 
   /*
     Create Scales:
@@ -83,6 +85,9 @@ const makeCommMajor = (data) => {
     numContribs: values.length, // need length of array of data in each year
   }));
   // console.log('numContribsByCommittee', numContribsByCommittee); // 0: {key: 'C00401224', numContribs: 23107}; 1: {key: 'C00630012', numContribs: 10369}
+  numContribsByCommittee[0].key = 'ActBlue';
+  numContribsByCommittee[1].key = 'It Starts Today';
+  // console.log('numContribsByCommittee', numContribsByCommittee); // 0: {key: 'ActBlue', numContribs: 23107}; 1: {key: 'It Starts Today', numContribs: 10369}
 
   const maxCommSize = max(nestedComm, (d) => d.values.length);
   // console.log('maxCommSize', maxCommSize); // 23107 from C00401224 which is ActBlue
@@ -94,6 +99,7 @@ const makeCommMajor = (data) => {
   //   (numContribsByCommittee[0].numContribs / totalContribs) * 100,
   //   (numContribsByCommittee[1].numContribs / totalContribs) * 100,
   // );
+  // percentages: 58.993081263243894 26.472465470142204
   const y = scaleLinear()
     .domain([0, maxCommSize])
     .range([size.height - margin.bottom, margin.top]);
@@ -104,7 +110,7 @@ const makeCommMajor = (data) => {
   // );
 
   const x = scaleBand()
-    .domain(committee_ids) // !figure out how to change to actual committee names
+    .domain(['ActBlue', 'It Starts Today'])
     .range([margin.left, size.width - margin.right]);
 
   /*
@@ -117,21 +123,24 @@ const makeCommMajor = (data) => {
     .data(numContribsByCommittee)
     .enter()
     .append('rect')
-    .attr('y', (d) => y(d.numContribs)) // if just d => y(0) then bars dropping from top of chart
+    .attr('y', (d) => y(d.numContribs))
     .attr('x', (d) => x(d.key) + gap / 2)
     .attr('height', (d) => y(0) - y(d.numContribs))
     .attr('width', (size.width - margin.left) / 2 - gap)
     .attr('fill', '#F78E69'); // "middle red"
 
   // x-axis
-  // reference: https://www.d3indepth.com/axes/
+  // default axis: tick size 6, padding 3
   svg
     .append('g')
     .attr('transform', `translate(0, ${size.height - margin.bottom})`)
     .attr('color', '#1a365d')
-    .call(axisBottom(x).ticks(2));
-  // .call(axisBottom(x).tickFormat((d) => committees[d]);
+    // .selectAll('text')
+    // .attr('dy', 10) // huh? https://stackoverflow.com/questions/53161706/d3-move-y-axis-labels-above-line
+    .call(axisBottom(x).tickPadding(10).tickSize(0))
+    .style('font-size', '12px');
   // https://dzone.com/articles/d3-js-axes-ticks-and-gridlines
+  // https://forum.freecodecamp.org/t/d3-how-to-remove-axis-tick-marks/149465
 
   // y-axis
   svg

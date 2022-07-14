@@ -6,7 +6,7 @@
  *
  */
 import { select } from 'd3-selection';
-import { scaleLinear } from 'd3-scale';
+import { scaleLinear, scaleBand } from 'd3-scale';
 import { nest } from 'd3-collection';
 import { max, min } from 'd3-array';
 import { axisBottom, axisLeft } from 'd3-axis';
@@ -58,10 +58,9 @@ const makeActBlueYears = (data) => {
   /*
     Create Scales:
   */
-  const years = data.map((d) => parseInt(d.report_year));
-  // console.log('years', years);
-  const maxYear = max(years); // 2021
-  const minYear = min(years); // 2015
+  const years = data.map((d) => d.report_year);
+  // console.log('years', years); // only received donations from 2017-2020
+  years.sort();
 
   const filter_actBlue = data.filter((d) => d.committee_id === 'C00401224');
   // console.log(filter_actBlue);
@@ -74,12 +73,12 @@ const makeActBlueYears = (data) => {
   // console.log('nestedyears[0]', nestedYears[0]);
   // console.log('nestedyears[0].values.length', nestedYears[0].values.length);
 
-  const gap = 0; // between bars
+  const gap = 10; // between bars
   const barWidth = (size.width - margin.left) / nestedYears.length - gap;
   // console.log('barWidth', barWidth);
 
-  const x = scaleLinear()
-    .domain([minYear, maxYear + 1]) // 2015-2021
+  const x = scaleBand()
+    .domain(years) // 2015-2021
     .range([margin.left, size.width - margin.right]);
 
   // console.log('margin.left', margin.left); // 50
@@ -90,7 +89,7 @@ const makeActBlueYears = (data) => {
   // console.log('x(nestedYears[0].key)', x(nestedYears[0].key));
 
   const maxYearSize = max(nestedYears, (d) => d.values.length);
-  // console.log('maxYearSize', maxYearSize);
+  // console.log('maxYearSize', maxYearSize); // 10324
 
   const numContribsByYear = nestedYears.map(({ key, values }) => ({
     key,
@@ -99,7 +98,7 @@ const makeActBlueYears = (data) => {
   // console.log('numContribsByYear', numContribsByYear);
 
   const y = scaleLinear()
-    .domain([0, maxYearSize])
+    .domain([0, 10500])
     .range([size.height - margin.bottom, margin.top]);
 
   // check values of y function
@@ -116,7 +115,7 @@ const makeActBlueYears = (data) => {
     .data(nestedYears)
     .enter()
     .append('rect')
-    .attr('x', (d) => x(d.key))
+    .attr('x', (d) => x(d.key) + gap / 2)
     .attr('y', (d) => y(d.values.length)) // if just d => y(0) then bars dropping from top of chart
     .attr('width', barWidth)
     .attr('height', (d) => y(0) - y(d.values.length))
@@ -128,7 +127,7 @@ const makeActBlueYears = (data) => {
     .append('g')
     .attr('transform', `translate(0, ${size.height - margin.bottom})`)
     .attr('color', '#1a365d')
-    .call(axisBottom(x).ticks(maxYear - minYear + 1, 'd')); // "d" rounds year to integer
+    .call(axisBottom(x).ticks());
 
   // y-axis
   svg

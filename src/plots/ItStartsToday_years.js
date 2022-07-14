@@ -6,7 +6,7 @@
  *
  */
 import { select } from 'd3-selection';
-import { scaleLinear } from 'd3-scale';
+import { scaleLinear, scaleBand } from 'd3-scale';
 import { nest } from 'd3-collection';
 import { max, min } from 'd3-array';
 import { axisBottom, axisLeft } from 'd3-axis';
@@ -58,10 +58,9 @@ const makeItStartsTodayYears = (data) => {
   /*
     Create Scales:
   */
-  const years = data.map((d) => parseInt(d.report_year));
+  const years = data.map((d) => d.report_year);
+  years.sort();
   // console.log('years', years);
-  const maxYear = max(years); // 2021
-  const minYear = min(years); // 2015
 
   const filter_itStartsToday = data.filter(
     (d) => d.committee_id === 'C00630012',
@@ -76,16 +75,13 @@ const makeItStartsTodayYears = (data) => {
   // console.log('nestedyears[0]', nestedYears[0]);
   // console.log('nestedyears[0].values.length', nestedYears[0].values.length);
 
-  const gap = 0; // between bars
-  const barWidth = (size.width - margin.left) / nestedYears.length - gap;
+  const gap = 10; // between bars
+  const barWidth = (size.width - margin.left) / 7 - gap; // 7 is number of years
   // console.log('barWidth', barWidth);
 
-  const x = scaleLinear()
-    .domain([minYear, maxYear + 1]) // 2015-2021
+  const x = scaleBand()
+    .domain(years) // 2015-2021
     .range([margin.left, size.width - margin.right]);
-
-  // console.log('margin.left', margin.left); // 50
-  // console.log('size.width - margin.right', size.width - margin.right); // 590
 
   // check that x gives reasonable values
   // console.log('nestedYears[0].key', nestedYears[0].key);
@@ -101,7 +97,7 @@ const makeItStartsTodayYears = (data) => {
   // console.log('numContribsByYear', numContribsByYear);
 
   const y = scaleLinear()
-    .domain([0, maxYearSize])
+    .domain([0, 10500]) // so same scale as ActBlue chart
     .range([size.height - margin.bottom, margin.top]);
 
   // check values of y function
@@ -118,25 +114,25 @@ const makeItStartsTodayYears = (data) => {
     .data(nestedYears)
     .enter()
     .append('rect')
-    .attr('x', (d) => x(d.key))
+    .attr('x', (d) => x(d.key) + gap / 2)
     .attr('y', (d) => y(d.values.length)) // if just d => y(0) then bars dropping from top of chart
     .attr('width', barWidth)
     .attr('height', (d) => y(0) - y(d.values.length))
-    .attr('fill', '#4FB286'); // mint
+    .attr('fill', '#4F86B2'); // mint
 
   // x-axis
   // reference: https://www.d3indepth.com/axes/
   svg
     .append('g')
     .attr('transform', `translate(0, ${size.height - margin.bottom})`)
-    .attr('color', '#1a365d')
-    .call(axisBottom(x).ticks(maxYear - minYear + 1, 'd')); // "d" rounds year to integer
+    .attr('color', '#1a5d36')
+    .call(axisBottom(x).ticks());
 
   // y-axis
   svg
     .append('g')
     .attr('transform', `translate(${margin.left}, 0)`)
-    .attr('color', '#1a365d')
+    .attr('color', '#1a5d36')
     .call(axisLeft(y).ticks(10));
 };
 

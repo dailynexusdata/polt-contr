@@ -30,7 +30,9 @@ const makeContributions = (data) => {
   // When the resize event is called, reset the plot
   container.selectAll('*').remove();
 
-  container.append('h1').text('Political Contribution Amounts');
+  container
+    .append('h1')
+    .text('Distribution of Political Contribution Amounts in $0–⁠$100 Range'); // em dash — or en dash –⁠
 
   const size = {
     height: 400,
@@ -49,7 +51,7 @@ const makeContributions = (data) => {
     .attr('height', size.height)
     .attr('width', size.width);
 
-  container.append('a').text('Source: __________').attr('href', '');
+  // container.append('a').text('Source: __________').attr('href', '');
 
   /*
     Create Scales:
@@ -73,7 +75,7 @@ const makeContributions = (data) => {
   // console.log('binnedContributions[0].length', binnedContributions[0].length); // 36282
 
   const maxBinSize = max(binnedContributions, (d) => d.length);
-  // console.log('maxBinSize', maxBinSize); // 36282
+  // console.log('maxBinSize', maxBinSize); // 21182
 
   const x = scaleLinear()
     .domain([0, maxContrib])
@@ -87,7 +89,7 @@ const makeContributions = (data) => {
   // console.log('x(min(binnedContributions[1]))', x(min(binnedContributions[1]))); // why is this so big, 1037.85...
 
   const y = scaleLinear()
-    .domain([0, maxBinSize])
+    .domain([0, 22000]) // or maxBinSize
     .range([size.height - margin.bottom, margin.top]);
 
   // check that y gives reasonable values
@@ -111,25 +113,25 @@ const makeContributions = (data) => {
     .data(binnedContributions)
     .enter()
     .append('rect')
-    .attr('x', (d) => x(min(d)))
+    .attr('x', (d) => x(min(d)) + gap / 2)
     .attr('y', (d) => y(d.length)) // if just d => y(0) then bars dropping from top of chart
     .attr('width', barWidth)
     .attr('height', (d) => y(0) - y(d.length))
-    .attr('fill', '#009fad');
+    .attr('fill', '#b24f6f'); // same light/darkness (?) as 2 committee charts
 
   // x-axis
   svg
     .append('g')
     .attr('transform', `translate(0, ${size.height - margin.bottom})`)
-    .attr('color', '#adadad')
+    .attr('color', '#1a365d')
     .call(axisBottom(x).ticks(10));
 
   // y-axis
   svg
     .append('g')
     .attr('transform', `translate(${margin.left}, 0)`)
-    .attr('color', '#adadad')
-    .call(axisLeft(y).ticks(5));
+    .attr('color', '#1a365d')
+    .call(axisLeft(y).ticks(11));
 };
 
 export default makeContributions;

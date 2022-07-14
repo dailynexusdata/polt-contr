@@ -50,7 +50,7 @@ const makeYears = (data) => {
     .attr('height', size.height)
     .attr('width', size.width);
 
-  container.append('a').text('Source: __________').attr('href', '');
+  // container.append('a').text('Source: __________').attr('href', '');
 
   /*
     Create Scales:
@@ -62,12 +62,13 @@ const makeYears = (data) => {
 
   const years = data.map((d) => d.report_year);
   // console.log('years', years);
+  years.sort();
 
-  // need to nest, then set maxYearSize to size of year with most donations
+  // need to nest, then set maxYearSize to size of year with most donations (line 93)
   const nestedYears = nest()
     .key((d) => d.report_year)
     .entries(data);
-  // console.log('nestedyears', nestedYears);
+  // console.log('nestedyears', nestedYears); // 2020: 12685, 2016: 4113, around 3x more in 2020
   // console.log('nestedyears[0]', nestedYears[0]);
   // console.log('nestedyears[0].values.length', nestedYears[0].values.length);
 
@@ -91,7 +92,7 @@ const makeYears = (data) => {
   // console.log('x(nestedYears[0].key)', x(nestedYears[0].key));
 
   const maxYearSize = max(nestedYears, (d) => d.values.length);
-  // console.log('maxYearSize', maxYearSize);
+  // console.log('maxYearSize', maxYearSize); // 12685
 
   const numContribsByYear = nestedYears.map(({ key, values }) => ({
     key,
@@ -100,7 +101,7 @@ const makeYears = (data) => {
   // console.log('numContribsByYear', numContribsByYear);
 
   const y = scaleLinear()
-    .domain([0, maxYearSize])
+    .domain([0, 14000]) // or maxYearSize
     .range([size.height - margin.bottom, margin.top]);
 
   // check values of y function
@@ -121,7 +122,7 @@ const makeYears = (data) => {
     .attr('y', (d) => y(d.values.length)) // if just d => y(0) then bars dropping from top of chart
     .attr('width', barWidth)
     .attr('height', (d) => y(0) - y(d.values.length))
-    .attr('fill', '#2d44d2');
+    .attr('fill', '#4F9C9C'); // average of #4FB286 (ActBlue, 5223046) and #4F86B2 (IST, 5211826) = (#4F9C9C, 5217436)
 
   // x-axis
   // reference: https://www.d3indepth.com/axes/
@@ -130,14 +131,16 @@ const makeYears = (data) => {
     .attr('transform', `translate(0, ${size.height - margin.bottom})`)
     .attr('color', '#1a365d')
     // .call(axisBottom(x).ticks(maxYear - minYear + 1, 'd')); // "d" rounds year to integer
-    .call(axisBottom(x).ticks());
+    .call(axisBottom(x).tickPadding(10).tickSize(0)) // also used in committee_num_major
+    .style('font-size', '13px');
 
   // y-axis
   svg
     .append('g')
     .attr('transform', `translate(${margin.left}, 0)`)
     .attr('color', '#1a365d')
-    .call(axisLeft(y).ticks(10));
+    .call(axisLeft(y).ticks(7))
+    .style('font-size', '12px');
 };
 
 export default makeYears;

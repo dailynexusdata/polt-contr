@@ -40,27 +40,27 @@ const main = async () => {
   const resize = () => {
     // call imported plots here:
     // makePLOT_NAME(data);
-    makeCommNum(data);
+    // makeCommNum(data);
     makeCommMajor(data);
-    makeCommMinor(data);
+    // makeCommMinor(data);
     makeContributions(data);
     makeYears(data);
-    makeZips(data);
-    makeCities(data);
-    makeCitiesBins(data);
-    makeOccupation(data);
-    makeOccMaxContrib(data);
-    makeOccGrouped(data);
-    makeCommNum2020(data);
-    makeCommNum2021(data);
-    makeCommNum2019(data);
-    makeCommNum2018(data);
-    makeCommNum2017(data);
-    makeCommNum2016(data);
-    makeCommNum2015(data);
+    // makeZips(data);
+    // makeCities(data);
+    // makeCitiesBins(data);
+    // makeOccupation(data);
+    // makeOccMaxContrib(data);
+    // makeOccGrouped(data);
+    // makeCommNum2020(data);
+    // makeCommNum2021(data);
+    // makeCommNum2019(data);
+    // makeCommNum2018(data);
+    // makeCommNum2017(data);
+    // makeCommNum2016(data);
+    // makeCommNum2015(data);
     makeActBlueYears(data);
     makeItStartsTodayYears(data);
-    makeNumCommittees(data);
+    // makeNumCommittees(data);
   };
 
   window.addEventListener('resize', () => {

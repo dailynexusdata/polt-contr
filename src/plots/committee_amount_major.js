@@ -37,7 +37,7 @@ const makeCommMajor = (data) => {
 
   container
     .append('h1')
-    .text('Top Campaigns Donated to by Percentage of Political Contributions');
+    .text('Monetary Amount of Political Contributions to Top Two Campaigns');
 
   const size = {
     height: 400,
