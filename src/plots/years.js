@@ -31,7 +31,7 @@ const makeYears = (data) => {
   // When the resize event is called, reset the plot
   container.selectAll('*').remove();
 
-  container.append('h1').text('Number of Political Contributions by Year');
+  container.append('h1').text('Number of Political Donations by Year');
 
   const size = {
     height: 400,
@@ -41,8 +41,8 @@ const makeYears = (data) => {
   const margin = {
     top: 10,
     right: 10,
-    bottom: 20,
-    left: 50,
+    bottom: 50,
+    left: 70,
   };
 
   const svg = container
@@ -131,7 +131,8 @@ const makeYears = (data) => {
     .attr('transform', `translate(0, ${size.height - margin.bottom})`)
     .attr('color', '#1a365d')
     // .call(axisBottom(x).ticks(maxYear - minYear + 1, 'd')); // "d" rounds year to integer
-    .call(axisBottom(x).tickPadding(10).tickSize(0)) // also used in committee_num_major
+    // .call(axisBottom(x).tickPadding(10).tickSize(0)) // to hide ticks, also used in committee_num_major
+    .call(axisBottom(x).ticks())
     .style('font-size', '13px');
 
   // y-axis
@@ -141,6 +142,31 @@ const makeYears = (data) => {
     .attr('color', '#1a365d')
     .call(axisLeft(y).ticks(7))
     .style('font-size', '12px');
+
+  // x-axis label
+  svg
+    .append('text')
+    .attr('class', 'x label')
+    .attr('text-anchor', 'middle')
+    .attr('x', (size.width - margin.left - margin.right) / 2 + margin.left)
+    .attr('y', size.height - 15)
+    .attr('font-family', 'sans-serif')
+    .attr('font-size', '1em')
+    .attr('font-color', '#000000')
+    .text('Year');
+
+  // y-axis label
+  svg
+    .append('text')
+    .attr('class', 'y label')
+    .attr('text-anchor', 'middle')
+    .attr('y', margin.left - 50)
+    .attr('x', -(size.height - margin.top - margin.bottom) / 2 + margin.top) // y-dir of rotated text
+    .attr('transform', 'rotate(-90)') // rotates around top-left corner of graph
+    .attr('font-family', 'sans-serif')
+    .attr('font-size', '1em')
+    .attr('font-color', '#000000')
+    .text('Number of donations');
 };
 
 export default makeYears;

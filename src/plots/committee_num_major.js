@@ -38,7 +38,7 @@ const makeCommMajor = (data) => {
   container
     .append('h3')
     .text(
-      'Percentage of Contributions Received by Top Two Political Organizations',
+      'Percentage of Donations Received by Top Two Political Organizations',
     );
 
   const size = {
@@ -49,8 +49,8 @@ const makeCommMajor = (data) => {
   const margin = {
     top: 10,
     right: 10,
-    bottom: 30, // space for x-axis labels
-    left: 50,
+    bottom: 50, // space for x-axis labels
+    left: 60,
   };
 
   const svg = container
@@ -148,7 +148,32 @@ const makeCommMajor = (data) => {
     .attr('transform', `translate(${margin.left}, 0)`)
     .attr('color', '#1a365d')
     .call(axisLeft(y).ticks())
-    .call(axisLeft(y).tickFormat((d) => format('.0%')(d / totalContribs))); // need import format from d3-format
+    .call(axisLeft(y).tickFormat((d) => format('.0%')(d / totalContribs)));
+
+  // x-axis label
+  svg
+    .append('text')
+    .attr('class', 'x label')
+    .attr('text-anchor', 'middle')
+    .attr('x', (size.width - margin.left - margin.right) / 2 + margin.left)
+    .attr('y', size.height - 10)
+    .attr('font-family', 'sans-serif')
+    .attr('font-size', '1em')
+    .attr('font-color', '#000000')
+    .text('Political organization');
+
+  // y-axis label
+  svg
+    .append('text')
+    .attr('class', 'y label')
+    .attr('text-anchor', 'middle')
+    .attr('y', margin.left - 40)
+    .attr('x', -(size.height - margin.top - margin.bottom) / 2 + margin.top) // y-dir of rotated text
+    .attr('transform', 'rotate(-90)') // rotates around top-left corner of graph
+    .attr('font-family', 'sans-serif')
+    .attr('font-size', '1em')
+    .attr('font-color', '#000000')
+    .text('Percentage of total donations');
 };
 
 export default makeCommMajor;

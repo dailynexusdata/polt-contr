@@ -32,7 +32,7 @@ const makeContributions = (data) => {
 
   container
     .append('h1')
-    .text('Distribution of Political Contribution Amounts in $0–⁠$100 Range'); // em dash — or en dash –⁠
+    .text('Distribution of Political Donation Amounts in $0–⁠100 Range'); // em dash — or en dash –⁠
 
   const size = {
     height: 400,
@@ -42,8 +42,8 @@ const makeContributions = (data) => {
   const margin = {
     top: 10,
     right: 10,
-    bottom: 20,
-    left: 50,
+    bottom: 50,
+    left: 60,
   };
 
   const svg = container
@@ -132,6 +132,31 @@ const makeContributions = (data) => {
     .attr('transform', `translate(${margin.left}, 0)`)
     .attr('color', '#1a365d')
     .call(axisLeft(y).ticks(11));
+
+  // x-axis label
+  svg
+    .append('text')
+    .attr('class', 'x label')
+    .attr('text-anchor', 'middle')
+    .attr('x', (size.width - margin.left - margin.right) / 2 + margin.left)
+    .attr('y', size.height - 15)
+    .attr('font-family', 'sans-serif')
+    .attr('font-size', '1em')
+    .attr('font-color', '#000000')
+    .text('Donation amount (dollars)');
+
+  // y-axis label
+  svg
+    .append('text')
+    .attr('class', 'y label')
+    .attr('text-anchor', 'middle')
+    .attr('y', margin.left - 45)
+    .attr('x', -(size.height - margin.top - margin.bottom) / 2 + margin.top) // y-dir of rotated text
+    .attr('transform', 'rotate(-90)') // rotates around top-left corner of graph
+    .attr('font-family', 'sans-serif')
+    .attr('font-size', '1em')
+    .attr('font-color', '#000000')
+    .text('Number of donations');
 };
 
 export default makeContributions;
